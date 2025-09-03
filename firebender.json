@@ -1,0 +1,41 @@
+{
+  "rules": [
+    "Follow MVVM Pattern",
+    "Use Kotlin as primary programming language",
+    "Follow Material Design 3 Expressive guidelines for UI components",
+    "Always do best practice in android development"
+  ],
+  "mcpServers": {
+    "context7": {
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ]
+    },
+    "sequential-thinking": {
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "memory": {
+      "command": "npx.cmd",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    }
+  },
+  "commands": [
+    {
+      "name": "beast mode",
+      "path": "./beastmode/beastmode.md",
+      "model": "gpt-4.1"
+    }
+  ]
+}
+
+
+
