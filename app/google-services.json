@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "3897355319",
+    "project_id": "attention-ally-46589",
+    "storage_bucket": "attention-ally-46589.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:3897355319:android:4f41e0f76b6e35e39c23b2",
+        "android_client_info": {
+          "package_name": "com.example.attentionally"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdf-belpkpaRb-NnF9qZaX-h_166Tzedw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

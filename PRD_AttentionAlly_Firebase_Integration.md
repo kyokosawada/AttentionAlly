@@ -20,7 +20,7 @@ according to PRD specifications.
 1. Go to https://console.firebase.google.com
 2. Create new project: "AttentionAlly"
 3. Enable services:
-   - Authentication (Email/Password, Google)
+   - Authentication (Email/Password, Anonymous)
    - Cloud Firestore
    - Cloud Storage
    - Analytics
@@ -277,6 +277,24 @@ class RoomRepository {
 
 ---
 
+### Phase 5a: Room-Scoped Attention Tracking (Clarification)
+
+- Attention tracking is only active while a student is participating in an active Room session (
+  classroom/study group).
+- When joining a Room: the tracking module is enabled and begins recording engagement/facial
+  metrics (with parent/guardian consent as needed).
+- When leaving the Room: tracking is disabled and records are finalized.
+- All tracked attention/engagement data is tied to the Room (via session id, teacher id, etc.) in
+  Firestore/DB.
+- Student device shows only a neutral UI (camera preview/placeholder) during tracking, not lesson
+  content, for minimal distraction.
+- Real-time or post-session analytics are available for teacher/researcher dashboards—not pushed to
+  the child during lessons.
+
+---
+
+---
+
 ### **Phase 6: Camera & Attention Tracking (Days 24-30)**
 
 #### **Step 6.1: Camera Permission & Setup**
@@ -427,34 +445,16 @@ class NotificationService : FirebaseMessagingService() {
 
 ### **Phase 9: Testing & Polish (Days 43-47)**
 
+> **Note:** Unit testing and UI testing are NOT required for this project. The following section is
+> retained for historical reference and should be disregarded for this implementation.
+
 #### **Step 9.1: Unit Testing**
 
-```kotlin
-// Test critical business logic
-class AuthRepositoryTest {
-    @Test
-    fun `signIn with valid credentials returns success`()
-    
-    @Test
-    fun `signUp creates user with correct role`()
-}
-
-class AttentionTrackerTest {
-    @Test
-    fun `analyzeAttention correctly identifies looking away`()
-}
-```
+// --- TESTING NOT REQUIRED ---
 
 #### **Step 9.2: UI Testing**
 
-```kotlin
-// Test user flows with Compose Testing
-@Test
-fun loginFlow_validCredentials_navigatesToDashboard()
-
-@Test
-fun roomCreation_teacherRole_createsRoomSuccessfully()
-```
+// --- TESTING NOT REQUIRED ---
 
 #### **Step 9.3: Performance & Accessibility**
 
@@ -577,6 +577,10 @@ during app interaction, supporting studies and interventions for ASD.
 
 ## 3. Core Features
 
+- **Room-Scoped Attention & Facial Expression Tracking:** Attention tracking (camera/ML-based) is
+  always associated with an active Room session. When a student joins a classroom in the app,
+  tracking activates; when the student leaves, tracking stops. All engagement data is linked to the
+  Room context, ensuring research validity.
 - **Attention & Facial Expression Tracking:** Use device camera and ML/vision models to track and
   analyze children's facial expressions, gaze, and attention changes in real time, providing
   quantitative data for research on ASD.
@@ -750,6 +754,25 @@ extensibility, while following best practices in modern Android development.
 
 ## 6. Firebase Integration Requirements
 
+---
+
+## 6a. Attention Tracking & Room Integration (Clarification)
+
+**Attention tracking is always scoped to an active Room session.**
+
+- When a student joins a Room, attention tracking (face/camera) begins.
+- All tracking data is tied to the Room (session ID, teacher ID, participant IDs) for research and
+  reporting.
+- When the student leaves the Room, tracking stops.
+- During tracking, the student's device screen shows only a minimal placeholder (not lesson content;
+  camera or static image), to avoid distraction.
+- Tracking is visible to researchers/teachers for analytics but not shown as feedback to the child
+  during active lessons.
+- This link ensures all engagement/attention stats are contextually meaningful for research and
+  compliant with the study protocols.
+
+---
+
 - **Immediate:**
     - Connect project to Firebase via console.
     - Download and integrate google-services.json.
@@ -866,7 +889,7 @@ extensibility, while following best practices in modern Android development.
 - Reuse Composable functions and ViewModels instead of duplicating logic.
 - Comment code clearly and concisely.
 - Proactively add code for environment variables if needed (.env or local.properties).
-- Ensure all important logic is unit tested before release.
+- Unit testing and UI testing are NOT required for this project (explicit override).
 
 ---
 
