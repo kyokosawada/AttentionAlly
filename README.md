@@ -1,0 +1,1 @@
+# Attention Ally`r`nAttention Ally is a modern, scalable Android MVVM app (Kotlin, Jetpack Compose, Material Design 3) for classroom and ASD research use. See PRD for feature map, structure, and Firebase integration guidance.

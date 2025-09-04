@@ -880,6 +880,29 @@ extensibility, while following best practices in modern Android development.
     - Error display and state changes
     - Color schemes and dark mode
 
+### Theme Color Palette & Accessibility (2025)
+
+- **Chosen palette is autism-friendly, accessible and compliant with Material Design 3 roles:**
+  - *Primary (Blue):* #1976D2 (calming blue, main branding)
+  - *PrimaryContainer:* #63A4FF (light blue for background/surfaces)
+  - *Secondary (Green):* #66BB6A (gentle green)
+  - *SecondaryContainer:* #A5D6A7
+  - *Tertiary (Yellow accent):* #F6BB00 (gentle yellow, used sparingly)
+  - *Error:* #FF7043 (soft orange-red, high-contrast)
+  - *Background:* #F8F9FA (light gray/white, low stimulation)
+  - *Surface:* #E3F2FD (pale blue)
+  - OnPrimary, OnSecondary, OnSurface, OnBackground use strong contrast for accessibility (#FFFFFF
+    or #222222).
+  - Dark mode swaps to richer blues/greens and blue-gray surfaces for comfort.
+- **Palette chosen for ASD and neurodiversity research:**
+  - Blues and greens support focus and a sense of calm.
+  - Reds avoided except for errors; yellow used only as highlight.
+  - Prominent, clean layout, generous whitespace and rounded corners for focus and friendly UX.
+- **References:**
+  - [Material 3 Color Overview](https://m3.material.io/styles/color/overview)
+  - [How to Use Color Schemes in Autism Classroom Design](https://graciousgrowthaba.com/color-schemes-for-autism-classroom-design/)
+  - [SchemeColor: Autism Color Scheme](https://www.schemecolor.com/autism.php)
+
 ---
 
 ## 9. Development Best Practices

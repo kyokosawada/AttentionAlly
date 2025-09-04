@@ -2,10 +2,13 @@
   "rules": [
     "You are developing in Windows OS",
     "Follow MVVM Pattern",
+    "Import when you can import, dont repeat yourself",
     "Use Kotlin as primary programming language",
     "Follow Material Design 3 Expressive guidelines for UI components",
     "Always do best practice in android development",
-    "Use context7 mcp in parallel with searching the web for a more comprehensive result, documentations should be latest. Today is 2025"
+    "Use context7 mcp in parallel with searching the web for a more comprehensive result, documentations should be latest. Today is 2025",
+    "Make sure implemented codes are fully compliant with best, idiomatic Kotlin and Android",
+    "Use sequential thinking mcp always to plan out steps"
   ],
   "mcpServers": {
     "context7": {
