@@ -1,4 +1,4 @@
-package com.example.attentionally.data
+package com.example.attentionally.domain.model
 
 /**
  * Cloud-backed user profile for AttentionAlly. Used for Firestore docs and in-app session.

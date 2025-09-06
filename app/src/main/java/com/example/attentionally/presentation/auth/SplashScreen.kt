@@ -11,21 +11,37 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import kotlinx.coroutines.delay
-import com.example.attentionally.Screen
+import com.example.attentionally.presentation.navigation.Screen
+import com.example.attentionally.domain.model.User
 
 /**
- * SplashScreen - accepts NavController and navigates to Auth after a short delay (for manual testing).
- * Replace delay logic with real session/state check when ready.
+ * SplashScreen - waits for user authentication state to be determined, then navigates accordingly.
+ * No more hardcoded delays - proper auth state checking.
  */
 @Composable
-fun SplashScreen(navController: NavController) {
-    LaunchedEffect(Unit) {
-        delay(1500)
-        navController.navigate(Screen.Login.route) {
-            popUpTo(Screen.Splash.route) { inclusive = true }
+fun SplashScreen(
+    navController: NavController,
+    userState: User?,
+    isAuthStateLoading: Boolean
+) {
+    // Navigate based on actual user state once it's determined
+    LaunchedEffect(userState, isAuthStateLoading) {
+        // Only navigate when auth state loading is complete
+        if (!isAuthStateLoading) {
+            if (userState != null) {
+                // User is logged in, go to main screen
+                navController.navigate(Screen.Main.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }
+            } else {
+                // No user found, go to login
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }
+            }
         }
     }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,

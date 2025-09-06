@@ -15,13 +15,16 @@ class AttentionAllyApplication : Application() {
 
         // Start Timber logging - DebugTree for debug builds, swap for release as needed
         Timber.plant(Timber.DebugTree())
+        Timber.d("[AttentionAllyApplication] Timber planted DebugTree")
         // TODO: Swap Timber DebugTree for custom ReleaseTree in production builds
 
         // Start Koin Dependency Injection
         // You may add DI modules from di/ directory here as your app grows
+        Timber.d("[AttentionAllyApplication] Starting Koin DI and initializing modules")
         startKoin {
             androidContext(this@AttentionAllyApplication)
             modules(authModule)
         }
+        Timber.d("[AttentionAllyApplication] Koin DI initialized")
     }
 }

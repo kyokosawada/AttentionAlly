@@ -1,9 +1,11 @@
 package com.example.attentionally.presentation.auth
 
+import timber.log.Timber
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.attentionally.data.AuthRepository
-import com.example.attentionally.data.UserRole
+import com.example.attentionally.domain.repository.AuthRepository
+import com.example.attentionally.domain.model.UserRole
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,12 +26,28 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
      */
     val user = repo.getCurrentUser()
 
+    // Track when initial auth state is loaded
+    init {
+        viewModelScope.launch {
+            Timber.d("[AuthViewModel] Initializing - Listening for auth state")
+            user.collect { userValue ->
+                Timber.d("[AuthViewModel] Auth state emission: %s", userValue)
+                // Once we get any value (null or user), auth state is loaded
+                _uiState.value = _uiState.value.copy(isAuthStateLoading = false)
+            }
+        }
+    }
+
     // Expose public signOut suspend function.
     /**
      * Signs out the current user from the app.
      * @return Unit
      */
-    suspend fun signOut() = repo.signOut()
+    suspend fun signOut() {
+        Timber.d("[AuthViewModel] Attempting sign out")
+        repo.signOut()
+        Timber.d("[AuthViewModel] Signed out - current user should be null")
+    }
 
     /** UI state for authentication forms and flows */
     data class AuthUiState(
@@ -39,7 +57,8 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
         val role: String = "Student",
         val isLoading: Boolean = false,
         val error: String? = null,
-        val isSuccess: Boolean = false
+        val isSuccess: Boolean = false,
+        val isAuthStateLoading: Boolean = true // Track initial auth state loading
     )
 
     private val _uiState = MutableStateFlow(AuthUiState())
@@ -55,6 +74,7 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
      * @param newEmail the new email to update the state with
      */
     fun onEmailChange(newEmail: String) {
+        Timber.d("[AuthViewModel] Email input changed: %s", newEmail)
         _uiState.value = _uiState.value.copy(email = newEmail)
     }
 
@@ -63,6 +83,7 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
      * @param newPw the new password to update the state with
      */
     fun onPasswordChange(newPw: String) {
+        Timber.d("[AuthViewModel] Password input changed (length): %d", newPw.length)
         _uiState.value = _uiState.value.copy(password = newPw)
     }
 
@@ -71,6 +92,7 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
      * @param newName the new name to update the state with
      */
     fun onNameChange(newName: String) {
+        Timber.d("[AuthViewModel] Name input changed: %s", newName)
         _uiState.value = _uiState.value.copy(name = newName)
     }
 
@@ -79,6 +101,7 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
      * @param newRole the new role to update the state with
      */
     fun onRoleChange(newRole: String) {
+        Timber.d("[AuthViewModel] Role selection changed: %s", newRole)
         _uiState.value = _uiState.value.copy(role = newRole)
     }
 
@@ -86,6 +109,7 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
      * Clears any error message in the UI state.
      */
     fun clearError() {
+        Timber.d("[AuthViewModel] Clearing error message from UI state")
         _uiState.value = _uiState.value.copy(error = null)
     }
 
@@ -94,9 +118,15 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
      * Attempts to log in the user with the current email and password.
      */
     fun login() {
+        Timber.d(
+            "[AuthViewModel] Attempting login: email=%s passwordLen=%d",
+            _uiState.value.email,
+            _uiState.value.password.length
+        )
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             if (_uiState.value.email.isBlank() || _uiState.value.password.isBlank()) {
+                Timber.w("[AuthViewModel] Login failed - missing email or password")
                 _uiState.value =
                     _uiState.value.copy(isLoading = false, error = "Email/password required")
                 return@launch
@@ -105,13 +135,16 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
                 val result = repo.signIn(_uiState.value.email, _uiState.value.password)
                 result.fold(
                     onSuccess = {
+                        Timber.d("[AuthViewModel] Login succeeded: %s", it)
                         _uiState.value = _uiState.value.copy(isLoading = false, isSuccess = true)
                     },
                     onFailure = { e ->
+                        Timber.e(e, "[AuthViewModel] Login failed")
                         _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
                     }
                 )
             } catch (e: Exception) {
+                Timber.e(e, "[AuthViewModel] Login exception")
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
             }
         }
@@ -122,9 +155,17 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
      * Attempts to sign up the user with the current email, password, name, and role.
      */
     fun signUp() {
+        Timber.d(
+            "[AuthViewModel] Attempting sign up: name=%s email=%s role=%s passwordLen=%d",
+            _uiState.value.name,
+            _uiState.value.email,
+            _uiState.value.role,
+            _uiState.value.password.length
+        )
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             if (_uiState.value.name.isBlank() || _uiState.value.email.isBlank() || _uiState.value.password.isBlank()) {
+                Timber.w("[AuthViewModel] Sign up failed - missing fields")
                 _uiState.value =
                     _uiState.value.copy(isLoading = false, error = "All fields required")
                 return@launch
@@ -133,6 +174,10 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
                 val selectedRole = try {
                     UserRole.valueOf(_uiState.value.role.uppercase())
                 } catch (e: Exception) {
+                    Timber.w(
+                        e,
+                        "[AuthViewModel] Sign up role parsing failed - defaulting to STUDENT"
+                    )
                     UserRole.STUDENT
                 }
                 val result = repo.signUp(
@@ -143,13 +188,16 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
                 )
                 result.fold(
                     onSuccess = {
+                        Timber.d("[AuthViewModel] Sign up succeeded: %s", it)
                         _uiState.value = _uiState.value.copy(isLoading = false, isSuccess = true)
                     },
                     onFailure = { e ->
+                        Timber.e(e, "[AuthViewModel] Sign up failed")
                         _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
                     }
                 )
             } catch (e: Exception) {
+                Timber.e(e, "[AuthViewModel] Sign up exception")
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
             }
         }
@@ -161,8 +209,10 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
      * @param consentGiven whether parental consent has been given
      */
     fun signInAnonymously(consentGiven: Boolean) {
+        Timber.d("[AuthViewModel] Attempting anonymous sign-in, consentGiven=%s", consentGiven)
         viewModelScope.launch {
             if (!consentGiven) {
+                Timber.w("[AuthViewModel] Anonymous sign-in refused: parental consent not given")
                 _uiState.value = _uiState.value.copy(error = "Parental consent required")
                 return@launch
             }
@@ -171,13 +221,16 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
                 val result = repo.signInAnonymously()
                 result.fold(
                     onSuccess = {
+                        Timber.d("[AuthViewModel] Anonymous sign-in succeeded: %s", it)
                         _uiState.value = _uiState.value.copy(isLoading = false, isSuccess = true)
                     },
                     onFailure = { e ->
+                        Timber.e(e, "[AuthViewModel] Anonymous sign-in failed")
                         _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
                     }
                 )
             } catch (e: Exception) {
+                Timber.e(e, "[AuthViewModel] Anonymous sign-in exception")
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
             }
         }
@@ -187,6 +240,7 @@ class AuthViewModel(private val repo: AuthRepository) : ViewModel() {
      * Resets the UI state to its initial state.
      */
     fun reset() {
+        Timber.d("[AuthViewModel] Resetting UI state to initial values")
         _uiState.value = AuthUiState()
     }
 }

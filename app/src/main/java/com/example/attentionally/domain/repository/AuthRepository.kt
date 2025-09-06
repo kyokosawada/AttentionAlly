@@ -1,5 +1,7 @@
-package com.example.attentionally.data
+package com.example.attentionally.domain.repository
 
+import com.example.attentionally.domain.model.User
+import com.example.attentionally.domain.model.UserRole
 import kotlinx.coroutines.flow.Flow
 
 /**

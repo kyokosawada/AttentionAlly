@@ -1,6 +1,7 @@
-package com.example.attentionally
+package com.example.attentionally.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -20,8 +21,8 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
-import com.example.attentionally.data.User
-import com.example.attentionally.data.UserRole
+import com.example.attentionally.domain.model.User
+import com.example.attentionally.domain.model.UserRole
 import com.google.firebase.auth.FirebaseAuth
 
 /**
@@ -41,9 +42,9 @@ fun AttentionAllyNavigation(startDestination: String = Screen.Splash.route) {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = koinViewModel()
     val userState by authViewModel.user.collectAsStateWithLifecycle(initialValue = null)
+    val uiState by authViewModel.uiState.collectAsState()
 
-    // Decide startDestination depending on login state
-    val firstDest = if (userState != null) Screen.Main.route else Screen.Login.route
+    // Always start with splash screen to properly check auth state
     val (guestName, setGuestName) = rememberSaveable { mutableStateOf("") }
     val (guestUser, setGuestUser) = rememberSaveable(
         stateSaver = androidx.compose.runtime.saveable.mapSaver(
@@ -58,8 +59,14 @@ fun AttentionAllyNavigation(startDestination: String = Screen.Splash.route) {
             } else null
         }
     )) { mutableStateOf<User?>(null) }
-    NavHost(navController = navController, startDestination = firstDest) {
-        composable(Screen.Splash.route) { SplashScreen(navController) }
+    NavHost(navController = navController, startDestination = startDestination) {
+        composable(Screen.Splash.route) {
+        SplashScreen(
+                navController = navController,
+                userState = userState,
+                isAuthStateLoading = uiState.isAuthStateLoading
+            )
+        }
         composable(Screen.Login.route) {
             LoginScreen(
                 onSignup = { navController.navigate(Screen.Signup.route) },

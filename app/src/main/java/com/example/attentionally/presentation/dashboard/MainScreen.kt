@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.attentionally.data.User
+import com.example.attentionally.domain.model.User
 
 /**
  * Dummy main screen for authenticated users. Shows user info and logout option.
